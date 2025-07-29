@@ -1,0 +1,16 @@
+# .gitignore
+
+# VS Code
+.vscode/
+
+# .NET
+bin/
+obj/
+
+# Node.js
+node_modules/
+frontend/dist/
+
+# Логи и конфигурации
+*.log
+.env
