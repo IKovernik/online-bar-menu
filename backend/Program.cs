@@ -1,43 +1,47 @@
+using backend.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// ✅ Подключаем стандартный Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Добавляем CORS для фронтенда (чтобы React мог обращаться к API)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
 
 var app = builder.Build();
 
-// ✅ Подключаем Swagger UI (в Dev-среде)
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseCors("AllowAll");
 
-app.UseHttpsRedirection();
-
-// Оставим WeatherForecast как есть
-var summaries = new[]
+// Модель напитка (временно хардкод)
+var drinks = new List<Drink>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+    new Drink
+    {
+        Id = 1,
+        Name = "Mojito",
+        Description = "Освежающий коктейль с мятой и лаймом",
+        Price = 120,
+        ImageUrl = "/images/mojito.jpg"
+    },
+    new Drink
+    {
+        Id = 2,
+        Name = "Negroni",
+        Description = "Классический коктейль на основе джина и вермута",
+        Price = 150,
+        ImageUrl = "/images/negroni.jpg"
+    }
 };
 
-app.MapGet("/weatherforecast", () =>
+// Endpoint API: GET /drinks
+app.MapGet("/drinks", () =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    return drinks;
 })
-.WithName("GetWeatherForecast");
+.WithName("GetDrinks");
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
